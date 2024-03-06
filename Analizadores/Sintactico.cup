@@ -1,0 +1,53 @@
+package com.mycompany.db_emulador;
+import java_cup.runtime.*;
+
+parser code{:
+
+    //Conectar parser al scanner
+    public Sintactico(Lexico lex){
+        super(lex);
+    }
+
+    public void syntax_error(Symbol cur_token) {
+        System.out.println("Simbolo con error:" + symbl_name_from_id(cur_token.sym));
+        System.out.println("Linea " + cur_token.left);
+        System.out.println("Columna " + cur_token.right);
+        if (expected_token_ids().isEmpty()) {
+            System.out.println("ya no se esperaba ningun simbolo");
+        }
+    }
+    
+    /*public void unrecovered_syntax_error(Symbol cur_token) {
+        System.out.println("Error irrecuperable sobrecargado");
+    }*/
+
+:}
+
+
+//-----> Terminales 
+terminal String SELEC, FILT, INSERTAR, ELIMINAR, ACTUALIZAR, ASIGNAR;
+terminal String EN, VALORES;
+terminal String ID, DOT, COMA, CSV, PATH, VALOR, PARA, PARC, FINL, LOGIC, RELAC, STRING, NUMERO, ERROR;
+
+//---> No terminales
+non terminal accion,condiciones_filtrar, lista_col, col_extra, lista_val, mas_valores, insertar, posible_col, seleccionar, eliminar, actualizar;
+
+accion ::= insertar | seleccionar | eliminar | actualizar; // Inicio de la gramatica
+
+
+
+lista_val ::= PARA VALOR mas_valores PARC;
+mas_valores ::= /* nada */ | COMA VALOR mas_valores;
+
+condiciones_filtrar ::= ID RELAC VALOR FINL;
+
+lista_col ::= PARA  ID  col_extra  PARC;
+col_extra ::= COMA ID col_extra | /* nada */;
+
+insertar ::= INSERTAR EN PATH posible_col VALORES; 
+posible_col ::= lista_col | /* nada */;
+
+
+seleccionar ::= SELEC lista_col EN PATH FILT condiciones_filtrar FINL;
+eliminar ::= ELIMINAR EN PATH FILT condiciones_filtrar FINL;
+actualizar ::= ACTUALIZAR EN PATH ASIGNAR lista_col FILT condiciones_filtrar FINL;
