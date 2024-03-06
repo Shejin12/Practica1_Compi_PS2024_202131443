@@ -26,17 +26,14 @@ public class Interfaz extends JFrame {
     private File selectedFile;
 
     public Interfaz() {
-        // Crear el JFileChooser para obtener el path de la carpeta
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         int returnValue = fileChooser.showOpenDialog(null);
         if (returnValue == JFileChooser.APPROVE_OPTION) {
             File selectedDirectory = fileChooser.getSelectedFile();
-            // Crear el JTree con el árbol de directorios/archivos
             DefaultMutableTreeNode root = new DefaultMutableTreeNode(selectedDirectory.getName());
             createNodes(root, selectedDirectory);
             directoryTree = new JTree(root);
-            // Agregar listener para la selección en el JTree
             directoryTree.addTreeSelectionListener(new TreeSelectionListener() {
                 public void valueChanged(TreeSelectionEvent e) {
                     DefaultMutableTreeNode node = (DefaultMutableTreeNode) directoryTree.getLastSelectedPathComponent();
@@ -47,12 +44,10 @@ public class Interfaz extends JFrame {
                     }
                 }
             });
-            // Crear la ventana principal del editor
             textArea = new JTextArea();
             JScrollPane scrollPane = new JScrollPane(textArea);
             tabbedPane = new JTabbedPane();
             tabbedPane.addTab("Tab 1", scrollPane);
-            // Configurar la ventana principal
             JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(directoryTree), tabbedPane);
             splitPane.setDividerLocation(150);
             add(splitPane);
@@ -62,8 +57,7 @@ public class Interfaz extends JFrame {
             setVisible(true);
         }
     }
-
-    // Método para crear nodos en el JTree
+    
     private void createNodes(DefaultMutableTreeNode root, File file) {
         if (file.isDirectory()) {
             for (File subFile : file.listFiles()) {
@@ -74,40 +68,48 @@ public class Interfaz extends JFrame {
         }
     }
 
-    // Método para agregar una pestaña al JTabbedPane
-    private void addTab(String title, File file) {
-        try {
-            FileReader reader = new FileReader(file);
-            StringBuilder sb = new StringBuilder();
-            int data;
-            while ((data = reader.read()) != -1) {
-                sb.append((char) data);
-            }
-            reader.close();
-            JTextArea fileContent = new JTextArea(sb.toString());
-            JScrollPane scrollPane = new JScrollPane(fileContent);
-            JButton saveButton = new JButton("Guardar");
-            saveButton.addActionListener(e -> {
-                try {
-                    FileWriter writer = new FileWriter(file);
-                    writer.write(fileContent.getText());
-                    writer.close();
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-            });
-            JButton closeButton = new JButton("Cerrar");
-            closeButton.addActionListener(e -> tabbedPane.remove(tabbedPane.getSelectedIndex()));
-            JPanel panel = new JPanel();
-            panel.setLayout(new BorderLayout());
-            panel.add(scrollPane, BorderLayout.CENTER);
-            panel.add(saveButton, BorderLayout.SOUTH);
-            panel.add(closeButton, BorderLayout.NORTH);
-            tabbedPane.addTab(title, panel);
-        } catch (IOException e) {
-            e.printStackTrace();
+   private void addTab(String title, File file) {
+    try {
+        FileReader reader = new FileReader(file);
+        StringBuilder sb = new StringBuilder();
+        int data;
+        while ((data = reader.read()) != -1) {
+            sb.append((char) data);
         }
-    }
+        reader.close();
+        JTextArea fileContent = new JTextArea(sb.toString());
+        JScrollPane scrollPane = new JScrollPane(fileContent);
+        
 
-    
+        JTextArea code = new JTextArea(); 
+        JScrollPane scrollCode = new JScrollPane(code);
+        
+        JPanel pnlTextCode = new JPanel(new BorderLayout());
+        pnlTextCode.add(scrollPane, BorderLayout.CENTER);
+        pnlTextCode.add(scrollCode, BorderLayout.SOUTH);
+        
+        
+        JButton saveButton = new JButton("Guardar");
+        saveButton.addActionListener(e -> {
+            try {
+                FileWriter writer = new FileWriter(file);
+                writer.write(fileContent.getText());
+                writer.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        });
+        JButton closeButton = new JButton("Cerrar");
+        closeButton.addActionListener(e -> tabbedPane.remove(tabbedPane.getSelectedIndex()));
+        JPanel panel = new JPanel();
+        panel.setLayout(new BorderLayout());
+        panel.add(pnlTextCode, BorderLayout.CENTER);
+        panel.add(saveButton, BorderLayout.SOUTH);
+        panel.add(closeButton, BorderLayout.NORTH);
+        tabbedPane.addTab(title, panel);
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+}
+
 }
